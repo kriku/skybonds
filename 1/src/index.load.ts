@@ -18,7 +18,7 @@ node index.load.js 4 10
 `);
 }
 
-// резолвим относительно этого файла, чтобы иметь возможность запускать из корня пакета
+// relative to this file directory, to run from package.json directory
 const processFilename = resolve(`${__dirname}/index.proc.js`);
 
 const childPromise = (n: number): Promise<[number, number]> => {
@@ -36,40 +36,54 @@ const childPromise = (n: number): Promise<[number, number]> => {
 
 const NS_PER_SEC = 1e9;
 
-const average = async (n: number, k: number): Promise<number> => {
+const averageChildren = async (n: number): Promise<number> => {
     // array of length k [0, 0, 0, ..., 0]
-    const children = (new Array(k)).fill(0);
+    const children = (new Array(forks)).fill(0);
     const samples = await Promise.all(children.map(_ => childPromise(n)));
     return samples.reduce(
-        (average, curr) => average += (curr[0] + curr[1] / NS_PER_SEC) / k, 0
+        (average, curr) => average += (curr[0] + curr[1] / NS_PER_SEC) / forks, 0
     );
 }
 
-const TARGET = 5;
-const APPROXIMATION = 0.5;
-
-const binarySearchN = async (n: number, prev: number): Promise<number> => {
-    const runs = (new Array(iterations)).fill(0);
-    const samples = await Promise.all(runs.map(_ => average(n, forks)));
-    const averageTime = samples.reduce(
+const iteratedAverage = async (n: number): Promise<number> => {
+    const samples = [];
+    for (let i = 0; i < iterations; i++) {
+        let averageTime = await averageChildren(n);
+        samples.push(averageTime);
+    }
+    const average = samples.reduce(
         (average, curr) => average += curr / iterations, 0
     );
-    process.stdout.write(`${n}, ${averageTime.toFixed(6)}\n`);
+    process.stdout.write(`${n}, ${average.toFixed(6)}\n`);
+    return average;
+}
 
-    const diff = averageTime - TARGET;
+const TARGET = 2;
+const APPROXIMATION = 0.1;
 
-    // first try - exponentially increment
-    if (diff < -APPROXIMATION && prev < n) {
-        return await binarySearchN(n * 2, n);
+const binaryApproximation = async (n: number): Promise<number> => {
+    let averageTime = await iteratedAverage(n);
+    let diff = averageTime - TARGET;
+    let prev = n;
+
+    while (diff < -APPROXIMATION) {
+        prev = n;
+        n *= 2;
+        averageTime = await iteratedAverage(n);
+        diff = averageTime - TARGET;
     }
 
-    // binary search
-    if (Math.abs(diff) > APPROXIMATION) {
-        const nextN = n - Math.sign(diff) * Math.abs(n - prev) / 2;
-        return await binarySearchN(nextN, n);
+    while (diff > APPROXIMATION || diff < -APPROXIMATION) {
+        let step = Math.sign(-diff) * Math.abs(n - prev) / 2;
+        prev = n;
+        n += step;
+        averageTime = await iteratedAverage(n);
+        diff = averageTime - TARGET;
     }
 
     return n;
 }
 
-binarySearchN(2, 0);
+binaryApproximation(2).then(() => {
+    process.exit(0);
+});
