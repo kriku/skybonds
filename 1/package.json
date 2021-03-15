@@ -1,11 +1,12 @@
 {
   "name": "1",
   "version": "1.0.0",
-  "description": "array item percentage ratio function",
-  "main": "index.js",
+  "description": "array item fractions compute function",
+  "main": "build/index.js",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
