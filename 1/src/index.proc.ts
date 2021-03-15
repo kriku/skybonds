@@ -1,5 +1,9 @@
 import { computeFractions } from './index';
 
+declare global {
+    function gc(): void;
+}
+
 const n = parseInt(process.argv[2]);
 if (!Number.isFinite(n) || n < 0) {
     throw new Error(`
@@ -17,10 +21,26 @@ const generateInput = (n: number): string[] => {
     );
 }
 
+
 const input = generateInput(n);
 
+gc();
+const memoryUsage = process.memoryUsage();
 const time = process.hrtime();
 computeFractions(input);
 const computationTime = process.hrtime(time);
+const computationMemoryUsage = process.memoryUsage();
 
-process.stdout.write(JSON.stringify(computationTime));
+export interface AverageConsumption {
+    time: number;
+    heap: number;
+}
+
+const NS_PER_SEC = 1e9;
+const BYTES_IN_MB = Math.pow(2, 20);
+const average: AverageConsumption = {
+    time: computationTime[0] + computationTime[1] / NS_PER_SEC,
+    heap: (computationMemoryUsage.heapUsed - memoryUsage.heapUsed) / BYTES_IN_MB,
+}
+
+process.stdout.write(JSON.stringify(average));
