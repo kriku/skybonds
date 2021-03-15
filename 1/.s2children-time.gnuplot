@@ -5,7 +5,7 @@ set grid ls 100 # enable grid with specific linestyle
 
 set xtics rotate
 set terminal pngcairo size 800,600 enhanced font 'Segoe UI,10'
-set output 'data/s2children.png'
+set output 'data/s2children-time.png'
 
 plot 'data/s2c1.csv' using 1:2 with lines title '1 child process', \
      'data/s2c2.csv' using 1:2 with lines title '2 child processes', \
