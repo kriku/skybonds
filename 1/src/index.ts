@@ -6,10 +6,19 @@ import {
 } from './types';
 
 export const computeFractions = (input: InputArray): MaybeFractions => {
-    // O(n)
-    const parsed = input.map(parseFloat);
-    // O(n)
-    const isNaN = parsed.some(curr => !Number.isFinite(curr));
+    let isNaN = false,
+        isNegative = false,
+        sum = 0;
+
+    const parsed = new Array(input.length);
+
+    for (let i = 0; i < input.length; i++) {
+        const value = Number.parseFloat(input[i]);
+        isNaN = isNaN || !Number.isFinite(value);
+        isNegative = isNegative || value < 0;
+        sum += value;
+        parsed[i] = value;
+    }
 
     if (isNaN) {
         return {
@@ -18,20 +27,12 @@ export const computeFractions = (input: InputArray): MaybeFractions => {
         };
     }
 
-    // O(n)
-    const isNegative = parsed.some(curr => curr < 0);
-
     if (isNegative) {
         return {
             result: Result.Failure,
             error: InputError.InputNegative,
         };
     }
-
-    // O(n)
-    const sum = parsed.reduce(
-        (sum, curr) => sum += curr, 0
-    );
 
     if (sum === 0) {
         return {
@@ -40,9 +41,14 @@ export const computeFractions = (input: InputArray): MaybeFractions => {
         };
     }
 
+    const fractions = new Array(input.length);
+
+    for (let i = 0; i < input.length; i++) {
+        fractions[i] = (parsed[i] / sum * 100).toFixed(3);
+    }
+
     return {
         result: Result.Success,
-        // O(n)
-        fractions: parsed.map(curr => (curr / sum * 100).toFixed(3)),
-    }
+        fractions,
+    };
 }
