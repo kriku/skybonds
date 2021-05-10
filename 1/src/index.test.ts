@@ -96,4 +96,21 @@ describe('Percentage calculation', () => {
             ).fill('0.001', 0, Math.pow(10, power))
         );
     });
+
+    it('should work on small numbers', () => {
+        let power = 5;
+        let ratio = '0.001';
+        const sample = (
+            new Array(Math.pow(10, power))
+        ).fill('0.0000000000000000000000000001', 0, Math.pow(10, power));
+
+        const fractions = computeFractions(sample);
+        expect(fractions.result).toBe(Result.Success);
+        const definitelyFractions = fractions as Fractions;
+        expect(definitelyFractions.fractions).toStrictEqual(
+            (
+                new Array(Math.pow(10, power))
+            ).fill('0.001', 0, Math.pow(10, power))
+        );
+    });
 });

@@ -31,7 +31,7 @@ const childPromise = (n: number): Promise<AverageConsumption> => {
             resolve(result);
         });
         computation.stderr.on('data', (data) => {
-            reject(data);
+            throw new Error(data);
         });
     })
 }

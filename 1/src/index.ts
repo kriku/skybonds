@@ -20,14 +20,14 @@ const poweredInt = (
     let fractionValue = a.fraction;
 
     if (power > a.fractionLength) {
-        fractionValue = a.fraction * BigInt(Math.pow(10, power - a.fractionLength));
+        fractionValue = a.fraction * pow10(power - a.fractionLength);
     }
 
     if (power < a.fractionLength) {
-        fractionValue = a.fraction / BigInt(Math.pow(10, a.fractionLength - power));
+        fractionValue = a.fraction / pow10(a.fractionLength - power);
     }
 
-    return BigInt(Math.pow(10, power)) * a.integer + fractionValue;
+    return pow10(power) * a.integer + fractionValue;
 };
 
 const poweredRatio = (
@@ -36,8 +36,9 @@ const poweredRatio = (
     power: number,
     digits: number,
 ): string => {
-    const aPowered = poweredInt(a, digits + power);
-    const bPowered = poweredInt(b, digits);
+    const maxPower = Math.max(a.fractionLength, b.fractionLength);
+    const aPowered = poweredInt(a, maxPower + power);
+    const bPowered = poweredInt(b, maxPower);
     const ratio = aPowered / bPowered;
     let stringified = ratio.toString();
     while (stringified.length <= digits) {
@@ -46,6 +47,15 @@ const poweredRatio = (
     const length = stringified.length;
     return stringified.slice(0, length - digits) +
         '.' + stringified.slice(length - digits, length);
+};
+
+/**
+ * works only with positive powers
+ */
+const pow10 = (
+    n: number
+): bigint => {
+    return BigInt('1' + '0'.repeat(n));
 };
 
 export const computeFractions = (input: InputArray): MaybeFractions => {
@@ -98,13 +108,13 @@ export const computeFractions = (input: InputArray): MaybeFractions => {
         if (fractionPart) {
             if (fractionPart.length > fractionLength) {
                 const power = fractionPart.length - fractionLength;
-                fractionSum *= BigInt(Math.pow(10, power));
+                fractionSum *= pow10(power);
                 fractionLength = fractionPart.length;
             }
 
             fractionSum += fractionValue;
 
-            const wholeFraction = BigInt(Math.pow(10, fractionLength));
+            const wholeFraction = pow10(fractionLength);
 
             if (fractionSum > wholeFraction) {
                 integerSum += BigInt(1);
@@ -121,7 +131,7 @@ export const computeFractions = (input: InputArray): MaybeFractions => {
         };
     }
 
-    if (integerSum === BigInt(0)) {
+    if (integerSum === BigInt(0) && fractionSum === BigInt(0)) {
         return {
             result: Result.Failure,
             error: InputError.InputZeroSum,

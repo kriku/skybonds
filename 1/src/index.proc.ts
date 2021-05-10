@@ -17,7 +17,7 @@ node index.proc.js 100
 
 const generateInput = (n: number): string[] => {
     return (new Array(n)).fill(n).map(
-        _ => Math.random().toString()
+        _ => Number.MAX_SAFE_INTEGER.toString() + Math.random().toFixed(10) + '1'
     );
 }
 
