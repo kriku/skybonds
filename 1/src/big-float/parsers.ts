@@ -23,16 +23,16 @@ export const parseBigFloat = (s: string): BigFloat => {
         if (fractionPart) {
             fractionValue = BigInt(fractionPart);
         }
-
-        if (fractionValue < BigInt(0)) {
-            throw new Error(BigFloatError.NegativeFraction);
-        }
-
-        if (integralValue < BigInt(0)) {
-            throw new Error(BigFloatError.NegativeIntegral);
-        }
     } catch (e) {
         throw new Error(`${BigFloatError.GeneralParsingError}\n${e}`);
+    }
+
+    if (fractionValue < BigInt(0)) {
+        throw new Error(BigFloatError.NegativeFraction);
+    }
+
+    if (integralValue < BigInt(0)) {
+        throw new Error(BigFloatError.NegativeIntegral);
     }
 
     return {
