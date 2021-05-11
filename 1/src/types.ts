@@ -1,13 +1,5 @@
 export type InputArray = string[];
 
-export interface Fraction {
-    integer: bigint;
-    fraction: bigint;
-    fractionLength: number;
-}
-
-export type FractionArray = Fraction[];
-
 export const enum Result {
     Success,
     Failure,
