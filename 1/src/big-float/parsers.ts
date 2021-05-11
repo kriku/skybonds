@@ -13,7 +13,7 @@ export const parseBigFloat = (s: string): BigFloat => {
     const splited = s.replace(',', '.').split('.');
 
     if (splited.length > 2) {
-        throw new Error(BigFloatError.SplittingError)
+        throw new Error(BigFloatError.SplittingError);
     }
 
     const [integerPart, fractionPart] = splited;
