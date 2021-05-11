@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ ! -d "data" ]; then
+    mkdir data
+fi
+
 echo '1 iteration'
 time node ./build/index.load.js 1 1 | tee data/s2c1x1.csv
 echo '2 iterations'
